@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso Claude Code - Próximamente</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange: #FF6B2C;
+    --orange-glow: #FF8A50;
+    --dark: #0A0A0F;
+    --darker: #05050A;
+    --cyan: #00E5FF;
+    --purple: #B388FF;
+    --green: #69F0AE;
+    --white: #F0F0F5;
+    --gray: #6B6B80;
+  }
+
+  body {
+    background: var(--darker);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* === GRID BACKGROUND === */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,107,44,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,107,44,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  /* === FLOATING PARTICLES === */
+  .particles {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+
+  /* === MAIN CONTAINER === */
+  .container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* === BADGE === */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,107,44,0.08);
+    border: 1px solid rgba(255,107,44,0.25);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 40px;
+    animation: fadeSlideDown 0.8s ease-out 0.2s both;
+  }
+
+  .badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,107,44,0.6); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(255,107,44,0); }
+  }
+
+  /* === GLITCH TITLE === */
+  .title-wrapper {
+    text-align: center;
+    margin-bottom: 24px;
+    animation: fadeSlideDown 0.8s ease-out 0.4s both;
+  }
+
+  .title-line {
+    display: block;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .title-line.small {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--gray);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .title-line.big {
+    font-size: clamp(3rem, 10vw, 7rem);
+    background: linear-gradient(135deg, var(--white) 0%, var(--orange-glow) 50%, var(--orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 60px rgba(255,107,44,0.3));
+    position: relative;
+  }
+
+  .title-line.big::after {
+    content: 'CLAUDE CODE';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--white) 0%, var(--orange-glow) 50%, var(--orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: glitch-flash 4s ease-in-out infinite;
+  }
+
+  @keyframes glitch-flash {
+    0%, 92%, 100% { opacity: 0; transform: translate(0); }
+    93% { opacity: 0.8; transform: translate(-3px, 2px); filter: hue-rotate(40deg); }
+    94% { opacity: 0; transform: translate(3px, -2px); }
+    95% { opacity: 0.6; transform: translate(-2px, -1px); filter: hue-rotate(-40deg); }
+    96% { opacity: 0; }
+  }
+
+  /* === TERMINAL BLOCK === */
+  .terminal {
+    background: rgba(10,10,20,0.9);
+    border: 1px solid rgba(255,107,44,0.15);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 620px;
+    width: 100%;
+    margin-bottom: 48px;
+    animation: fadeSlideUp 0.8s ease-out 0.6s both;
+    backdrop-filter: blur(20px);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 120px rgba(255,107,44,0.05);
+    overflow: hidden;
+  }
+
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot.red { background: #FF5F57; }
+  .terminal-dot.yellow { background: #FFBD2E; }
+  .terminal-dot.green { background: #28CA41; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gray);
+    letter-spacing: 0.05em;
+  }
+
+  .terminal-body {
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 2;
+  }
+
+  .line {
+    opacity: 0;
+    animation: typeLine 0.4s ease-out forwards;
+  }
+
+  .line:nth-child(1) { animation-delay: 1.2s; }
+  .line:nth-child(2) { animation-delay: 1.8s; }
+  .line:nth-child(3) { animation-delay: 2.4s; }
+  .line:nth-child(4) { animation-delay: 3.0s; }
+  .line:nth-child(5) { animation-delay: 3.6s; }
+  .line:nth-child(6) { animation-delay: 4.2s; }
+
+  @keyframes typeLine {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .prompt { color: var(--green); }
+  .cmd { color: var(--white); }
+  .comment { color: var(--gray); font-style: italic; }
+  .output { color: var(--cyan); }
+  .highlight { color: var(--orange); font-weight: 700; }
+  .arrow { color: var(--purple); }
+
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: var(--orange);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+    margin-left: 4px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* === FEATURES === */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 620px;
+    width: 100%;
+    margin-bottom: 48px;
+    animation: fadeSlideUp 0.8s ease-out 0.8s both;
+  }
+
+  @media (max-width: 600px) {
+    .features { grid-template-columns: 1fr; }
+  }
+
+  .feature {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,107,44,0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .feature:hover::before { opacity: 1; }
+  .feature:hover { border-color: rgba(255,107,44,0.2); transform: translateY(-2px); }
+
+  .feature-icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .feature-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .feature-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-top: 4px;
+  }
+
+  /* === CTA === */
+  .cta-section {
+    text-align: center;
+    animation: fadeSlideUp 0.8s ease-out 1s both;
+  }
+
+  .subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    color: var(--gray);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    font-weight: 400;
+  }
+
+  .subtitle strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, var(--orange), #FF4500);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 40px rgba(255,107,44,0.3), 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--orange), #FF4500, var(--cyan));
+    border-radius: inherit;
+    z-index: -1;
+    animation: rotate-border 3s linear infinite;
+    filter: blur(8px);
+    opacity: 0.5;
+  }
+
+  @keyframes rotate-border {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 80px rgba(255,107,44,0.5), 0 8px 30px rgba(0,0,0,0.4);
+  }
+
+  .cta-arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .cta-btn:hover .cta-arrow {
+    transform: translateX(4px);
+  }
+
+  /* === COUNTDOWN HINT === */
+  .countdown-hint {
+    margin-top: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    animation: fadeSlideUp 0.8s ease-out 1.2s both;
+  }
+
+  .countdown-hint .timer {
+    color: var(--orange);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  /* === TIMEZONES === */
+  .timezones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    max-width: 680px;
+    width: 100%;
+    margin-top: 20px;
+    animation: fadeSlideUp 0.8s ease-out 1.4s both;
+  }
+
+  .tz-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px 16px;
+    transition: all 0.3s ease;
+  }
+
+  .tz-card:hover {
+    border-color: rgba(255,107,44,0.25);
+    background: rgba(255,107,44,0.04);
+    transform: translateY(-1px);
+  }
+
+  .tz-flag {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .tz-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tz-country {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .tz-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--orange);
+  }
+
+  /* === NOISE OVERLAY === */
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px;
+  }
+
+  /* === GLOW ORB === */
+  .glow-orb {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb.orange {
+    background: rgba(255,107,44,0.08);
+    top: -100px;
+    right: -100px;
+    animation: orb-drift 8s ease-in-out infinite alternate;
+  }
+
+  .glow-orb.cyan {
+    background: rgba(0,229,255,0.04);
+    bottom: -150px;
+    left: -150px;
+    animation: orb-drift 10s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes orb-drift {
+    from { transform: translate(0, 0); }
+    to { transform: translate(40px, 30px); }
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === SCANLINE === */
+  .scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    opacity: 0.15;
+    z-index: 100;
+    animation: scan 6s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scan {
+    from { top: -2px; }
+    to { top: 100vh; }
+  }
+
+  /* === FOOTER LOGO MARK === */
+  .logo-mark {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.12);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background Effects -->
+<div class="grid-bg"></div>
+<div class="glow-orb orange"></div>
+<div class="glow-orb cyan"></div>
+<div class="noise"></div>
+<div class="scanline"></div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Main Content -->
+<div class="container">
+
+  <div class="badge">Próximamente · Curso Básico</div>
+
+  <div class="title-wrapper">
+    <span class="title-line small">Aprende desarrollo con</span>
+    <span class="title-line big">CLAUDE CODE</span>
+  </div>
+
+  <!-- Terminal -->
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="terminal-dot red"></div>
+      <div class="terminal-dot yellow"></div>
+      <div class="terminal-dot green"></div>
+      <div class="terminal-title">~/mi-primer-proyecto</div>
+    </div>
+    <div class="terminal-body">
+      <div class="line"><span class="prompt">$</span> <span class="cmd">claude</span> <span class="comment"># Tu nuevo superpoder</span></div>
+      <div class="line"><span class="arrow">❯</span> <span class="output">Iniciando Claude Code...</span></div>
+      <div class="line"><span class="arrow">❯</span> <span class="output">¿Qué quieres construir hoy?</span></div>
+      <div class="line"><span class="prompt">></span> <span class="highlight">Una app completa desde cero</span></div>
+      <div class="line"><span class="arrow">❯</span> <span class="output">Creando proyecto... </span><span class="highlight">✓ ¡Listo!</span></div>
+      <div class="line"><span class="comment"># De idea → código → producción</span><span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-label">Nivel</div>
+      <div class="feature-value">Desde cero</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🛠️</span>
+      <div class="feature-label">Stack</div>
+      <div class="feature-value">React + JS</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🚀</span>
+      <div class="feature-label">Método</div>
+      <div class="feature-value">100% práctico</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <p class="subtitle">
+      Aprende a <strong>programar con IA</strong> como copiloto.<br>
+      Sin experiencia previa. Sin complicaciones.<br>
+      Solo tú, tu terminal y <strong>Claude Code</strong>.
+    </p>
+    <a href="#" class="cta-btn">
+      Quiero estar listo
+      <span class="cta-arrow">→</span>
+    </a>
+    <div class="countdown-hint">
+      Lanzamiento: <span class="timer" id="countdown"></span>
+    </div>
+
+    <!-- Timezones -->
+    <div class="timezones">
+      <div class="tz-card">
+        <span class="tz-flag">🇨🇴</span>
+        <div class="tz-info">
+          <span class="tz-country">Colombia</span>
+          <span class="tz-time">8:00 PM</span>
+        </div>
+      </div>
+      <div class="tz-card">
+        <span class="tz-flag">🇲🇽</span>
+        <div class="tz-info">
+          <span class="tz-country">México (CDMX)</span>
+          <span class="tz-time">7:00 PM</span>
+        </div>
+      </div>
+      <div class="tz-card">
+        <span class="tz-flag">🇦🇷</span>
+        <div class="tz-info">
+          <span class="tz-country">Argentina</span>
+          <span class="tz-time">10:00 PM</span>
+        </div>
+      </div>
+      <div class="tz-card">
+        <span class="tz-flag">🇪🇸</span>
+        <div class="tz-info">
+          <span class="tz-country">España</span>
+          <span class="tz-time">2:00 AM (+1)</span>
+        </div>
+      </div>
+      <div class="tz-card">
+        <span class="tz-flag">🇺🇸</span>
+        <div class="tz-info">
+          <span class="tz-country">USA (EST)</span>
+          <span class="tz-time">8:00 PM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="logo-mark">by Carlos Martínez · 2026</div>
+
+<script>
+  // === PARTICLES ===
+  const particlesEl = document.getElementById('particles');
+  const colors = ['#FF6B2C', '#00E5FF', '#B388FF', '#69F0AE'];
+
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    const size = Math.random() * 4 + 1;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (Math.random() * 12 + 8) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    particlesEl.appendChild(p);
+  }
+
+  // === COUNTDOWN ===
+  function updateCountdown() {
+    const now = new Date();
+    const launch = new Date('2026-03-20T20:00:00-05:00');
+    const diff = launch - now;
+
+    if (diff <= 0) {
+      document.getElementById('countdown').textContent = '¡YA DISPONIBLE!';
+      return;
+    }
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('countdown').textContent =
+      `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
+</body>
+</html>
